@@ -467,24 +467,27 @@ class CommandLineInterface:
         print(Fore.LIGHTBLUE_EX + "password: ", end='')
         print(Fore.LIGHTBLACK_EX, end='')
         password = pwinput.pwinput(prompt='')
-        print(Fore.LIGHTBLUE_EX + "Enter a port number for peer server: ", end='')
-        print(Fore.LIGHTBLACK_EX, end='')
-        # asks for the port number for server's tcp socket
-        peerServerPort = int(input(""))
 
-        status = self.Authentication(username, password, peerServerPort)
-        # is user logs in successfully, peer variables are set
-        if status == 1:
-            self.isOnline = True
-            self.loginCredentials = (username, password)
-            self.peerServerPort = peerServerPort
-            # creates the server thread for this peer, and runs it
-            self.peerServer = PeerServer(self.loginCredentials[0], self.peerServerPort)
-            self.peerServer.start()
-            # hello message is sent to registry
-            self.sendHelloMessage()
-            self.logged_in = True
-            self.account_created = False
+        while True:
+            print(Fore.LIGHTBLUE_EX + "Enter a port number for peer server: ", end='')
+            print(Fore.LIGHTBLACK_EX, end='')
+            try:
+                # asks for the port number for the server's tcp socket
+                peerServerPort = int(input(""))
+
+                # Check if the port number is within the valid range
+                if 1 <= peerServerPort <= 65535:
+                    break  
+                else:
+                    print("Port number must be between 1 and 65535. Please try again.")
+            except ValueError:
+                print("Invalid input. Please enter a valid integer.")
+
+        try:
+            status = self.login(username, password, peerServerPort)
+        except Exception as e:
+
+            print(f"An error occurred: {e}")
 
     # login function
     def Authentication(self, username, password, peerServerPort):
